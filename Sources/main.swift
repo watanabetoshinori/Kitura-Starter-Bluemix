@@ -27,7 +27,7 @@ import CloudFoundryEnv
 let router = Router()
 
 // Using the HeliumLogger implementation for Logger
-HeliumLogger().use()
+HeliumLogger.use()
 
 // Serve static content from "public"
 router.all("/static", middleware: StaticFileServer())
