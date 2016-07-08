@@ -27,44 +27,44 @@ import CloudFoundryEnv
 let router = Router()
 
 // Using the HeliumLogger implementation for Logger
-Log.logger = HeliumLogger()
+HeliumLogger().use()
 
 // Serve static content from "public"
 router.all("/static", middleware: StaticFileServer())
 
 // Basic GET request
 router.get("/hello") { _, response, next in
-  Log.debug("GET - /hello route handler...")
-  response.headers["Content-Type"] = "text/plain; charset=utf-8"
-  do {
-    try response.status(.OK).send("Hello from Kitura-Starter-Bluemix!").end()
-  } catch {
-    Log.error("Failed to send response to client: \(error)")
-  }
+    Log.debug("GET - /hello route handler...")
+    response.headers["Content-Type"] = "text/plain; charset=utf-8"
+    do {
+        try response.status(.OK).send("Hello from Kitura-Starter-Bluemix!").end()
+    } catch {
+        Log.error("Failed to send response to client: \(error)")
+    }
 }
 
 // Basic POST request
 router.post("/hello") { request, response, next in
-  Log.debug("POST - /hello route handler...")
-  response.headers["Content-Type"] = "text/plain; charset=utf-8"
-  do {
-    if let name = try request.readString() {
-      try response.status(.OK).send("Hello \(name), from Kitura-Starter-Bluemix!").end()
-    } else {
-      try response.status(.OK).send("Kitura-Starter-Bluemix received a POST request!").end()
+    Log.debug("POST - /hello route handler...")
+    response.headers["Content-Type"] = "text/plain; charset=utf-8"
+    do {
+        if let name = try request.readString() {
+            try response.status(.OK).send("Hello \(name), from Kitura-Starter-Bluemix!").end()
+        } else {
+            try response.status(.OK).send("Kitura-Starter-Bluemix received a POST request!").end()
+        }
+    } catch {
+        Log.error("Failed to send response to client: \(error)")
     }
-  } catch {
-    Log.error("Failed to send response to client: \(error)")
-  }
 }
 
 // Start Kitura-Starter-Bluemix server
 do {
-  let appEnv = try CloudFoundryEnv.getAppEnv()
-  let port: Int = appEnv.port
-  let server = HTTPServer.listen(port: port, delegate: router)
-  Log.info("Server will be started on '\(appEnv.url)'.")
-  Server.run()
+    let appEnv = try CloudFoundryEnv.getAppEnv()
+    let port = appEnv.port
+    Kitura.addHTTPServer(onPort: port, with: router)
+    Log.info("Server will be started on '\(appEnv.url)'.")
+    Kitura.run()
 } catch CloudFoundryEnvError.InvalidValue {
-  Log.error("Oops... something went wrong. Server did not start!")
+    Log.error("Oops... something went wrong. Server did not start!")
 }
